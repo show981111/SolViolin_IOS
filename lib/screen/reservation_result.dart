@@ -5,6 +5,7 @@ import 'package:solviolin/model/booked_list.dart';
 import 'dart:convert';
 
 import 'package:solviolin/model/user.dart';
+import 'package:solviolin/screen/change_result.dart';
 import 'package:solviolin/screen/past_result.dart';
 import 'package:solviolin/widget/showdialog.dart';
 
@@ -43,7 +44,7 @@ class _ReservationResultState extends State<ReservationResult>{
           children: <Widget>[
             PastResult(user: widget.user),
             CurrentResult(user : widget.user),
-            Icon(Icons.directions_bike),
+            ChangeResult(user : widget.user),
           ],
         ),
       ),

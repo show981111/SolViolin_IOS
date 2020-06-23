@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:solviolin/model/user.dart';
+import 'package:solviolin/screen/day_change_page.dart';
 import 'package:solviolin/screen/reservation_result.dart';
 
 class MainPage extends StatelessWidget {
@@ -49,7 +50,12 @@ class MainPage extends StatelessWidget {
                   child: Text('보강예약', style: TextStyle(fontSize: 15),),
                   color: Colors.green,
                   textColor: Colors.white,
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DayChange(user: user)),
+                    );
+                  },
                 ),
               ),
             ),

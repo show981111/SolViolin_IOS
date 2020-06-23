@@ -7,8 +7,9 @@ class User {
   String userName;
   String userBranch;
   String userDuration;
+  String mainTeacher;
 
-  User({this.userID, this.userName, this.userBranch, this.userDuration});
+  User({this.userID, this.userName, this.userBranch, this.userDuration, this.mainTeacher});
 
   factory User.fromJson(Map<String, dynamic> json){
     return User(
@@ -16,6 +17,7 @@ class User {
       userName: json['userName'],
       userBranch: json['userBranch'],
       userDuration: json['userDuration'],
+      mainTeacher: json['courseTeacher']
     );
   }
 
