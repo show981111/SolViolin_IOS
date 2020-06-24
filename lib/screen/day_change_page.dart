@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solviolin/Api/api.dart';
 import 'package:solviolin/fetchData/getBookedList.dart';
 import 'package:solviolin/fetchData/getTermList.dart';
 import 'package:solviolin/fetchData/getTimeForDay.dart';
@@ -7,8 +8,9 @@ import 'package:solviolin/model/booked_list.dart';
 import 'package:solviolin/model/term.dart';
 import 'package:solviolin/model/user.dart';
 import 'package:intl/intl.dart';
-import 'package:solviolin/widget/show_twobutton_dialog.dart';
-import 'package:solviolin/widget/showdialog.dart';
+import 'package:http/http.dart' as http;
+import 'package:toast/toast.dart';
+
 
 class DayChange extends StatefulWidget {
   final User user;
@@ -18,13 +20,17 @@ class DayChange extends StatefulWidget {
 }
 
 class _DayChangeState extends State<DayChange> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<BookedList> canceledList = List<BookedList>();
   List<Term> termList = List<Term>();
   List<AvailableTime> timeList = List<AvailableTime>();
   String selectedDate = '';
+  bool _isButtonDisabled = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('보강 예약'),
       ),
@@ -48,6 +54,7 @@ class _DayChangeState extends State<DayChange> {
                 firstMessage = '취소한 수업이 없습니다';
                 secondMessage = '수업을 먼저 취소해주세요';
               }else{
+                _isButtonDisabled = false;
                 firstMessage = canceledList[0].bookedTeacher + ' / ' + canceledList[0].bookedBranch;
                 secondMessage = canceledList[0].bookedStartDate + ' ~ ' + canceledList[0].bookedEndDate;
               }
@@ -88,20 +95,24 @@ class _DayChangeState extends State<DayChange> {
                       color: Colors.green,
                       textColor: Colors.white,
                       onPressed: () {
-                        getTermList().then((value){
-                          termList = value;
-                          if(termList.length > 2){
-                            showDatePicker(context: context,
-                                initialDate: DateTime.now(),
-                                firstDate:  DateTime.now(),
-                                lastDate: DateTime.parse(termList[1].termEnd)
-                            ).then((pickedDate){
-                              setState(() {
-                                selectedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                        if(!_isButtonDisabled) {
+                          getTermList().then((value) {
+                            termList = value;
+                            if (termList.length > 2) {
+                              showDatePicker(context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime.parse(termList[1].termEnd)
+                              ).then((pickedDate) {
+                                setState(() {
+                                  selectedDate =
+                                      DateFormat('yyyy-MM-dd').format(
+                                          pickedDate);
+                                });
                               });
-                            });
-                          }
-                        });
+                            }
+                          });
+                        }
                       },
                     ),
                     Padding(
@@ -127,9 +138,14 @@ class _DayChangeState extends State<DayChange> {
                           widget.user.userDuration, selectedDate, widget.user.userName),
                       builder: (BuildContext context, AsyncSnapshot snapshot) {
                         if(snapshot.hasData == false){
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
+                          if(!_isButtonDisabled && selectedDate != '')
+                          {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }else{
+                            return Text('');
+                          }
                         }else if(snapshot.hasError){
                           return Container(
                             child: Text('error'),
@@ -137,16 +153,9 @@ class _DayChangeState extends State<DayChange> {
                         }else{
                           timeList =[];
                           timeList = snapshot.data;
-                          return GridView.count(
-                              padding: EdgeInsets.all(8),
-                              childAspectRatio: 2,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 16,
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              crossAxisCount: 4,
-                              children : makeButtonGrid(context, timeList, widget.user.mainTeacher, selectedDate)
-                          );
+                          return  makeButtonGrid(context, timeList, widget.user.mainTeacher, widget.user.userBranch,
+                            widget.user.userID, selectedDate, canceledList[0].bookedStartDate,widget.user.userDuration,
+                          widget.user.userName,_scaffoldKey);
                         }
                       },
                     ),
@@ -165,7 +174,8 @@ class _DayChangeState extends State<DayChange> {
 
 }
 
-List<Widget> makeButtonGrid(BuildContext context, List<AvailableTime> timeList, String teacher, String date){
+Widget makeButtonGrid(BuildContext context, List<AvailableTime> timeList, String teacher, String courseBranch, String userID
+    , String selectedDate, String canceledDate, String userDuration, String userName, GlobalKey<ScaffoldState> key){
   List<Widget> results = [];
   for(int i = 0; i < timeList.length; i++)
   {
@@ -178,11 +188,93 @@ List<Widget> makeButtonGrid(BuildContext context, List<AvailableTime> timeList, 
         color: Colors.green,
         textColor: Colors.white,
         onPressed: () {
-          showTwoButtonDialog(context, teacher + ' 선생님으로 '+ date + ' ' +timeList[i].availableTime+ ' 에 예약하시겠습니까?');
+          //showTwoButtonDialog(context, teacher + ' 선생님으로 '+ date + ' ' +timeList[i].availableTime+ ' 에 예약하시겠습니까?');
+          showDialog<void>(
+            context: context,
+            barrierDismissible: true, // user dont have button!
+            builder: (BuildContext context) {
+              return AlertDialog(
+                content: SingleChildScrollView(
+                  child: Text(
+                      teacher + ' 선생님으로 '+ selectedDate + ' ' +timeList[i].availableTime+ ' 에 예약하시겠습니까?'
+                  ),
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('취소'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  FlatButton(
+                    child: Text('확인'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      String startDate = selectedDate + ' ' +timeList[i].availableTime;
+                      print(startDate);
+                      putNewlyDate( teacher,  courseBranch,  userID
+                          ,  startDate,  canceledDate,  userDuration,  userName).then((value) {
+                            if(value == 'success'){
+                              Toast.show("성공적으로 예약하였습니다!", key.currentContext, duration: Toast.LENGTH_LONG, gravity:  Toast.CENTER);
+                            }else{
+                              Toast.show("오류가 발생했습니다!", key.currentContext, duration: Toast.LENGTH_LONG, gravity:  Toast.CENTER);
+
+                            }
+                      });
+
+                    },
+                  ),
+                ],
+              );
+            },
+          );
         },
       )
     );
   }
-  return results;
+
+  if(timeList.length < 1){
+    return Center(
+      child: Text(
+        '예약가능한 시간대가 없습니다!',
+            style: TextStyle(color: Colors.red),
+      ),
+    );
+  }else{
+    return GridView.count(
+        padding: EdgeInsets.all(8),
+        childAspectRatio: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 16,
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        crossAxisCount: 4,
+        children : results
+    );
+  }
+  //return results;
 }
 
+
+Future<String> putNewlyDate(String courseTeacher, String courseBranch, String userID
+    , String startDate, String canceledDate, String userDuration, String userName) async{
+
+  Map data = {
+    'courseTeacher' : courseTeacher,
+    'courseBranch' : courseBranch,
+    'userID' : userID,
+    'startDate' : startDate,
+    'canceledDate' : canceledDate,
+    'userDuration' : userDuration,
+    'userName' : userName
+  };
+
+  var response = await http.post(API.POST_PUTNEWLYDATE, body: data);
+  if(response.statusCode == 200 && response.body.isNotEmpty){
+    var result = response.body;
+    print(result);
+    return result;
+  }else{
+    return Future.error('loading fail');
+  }
+}

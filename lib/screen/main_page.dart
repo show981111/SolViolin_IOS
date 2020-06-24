@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solviolin/model/user.dart';
 import 'package:solviolin/screen/day_change_page.dart';
@@ -70,22 +71,7 @@ class MainPage extends StatelessWidget {
                   child: Text('홈페이지', style: TextStyle(fontSize: 15),),
                   color: Colors.green,
                   textColor: Colors.white,
-                  onPressed: () {},
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(15),
-              child: Container(
-                height: 45,
-                child: FlatButton(
-                  shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(15.0),
-                  ),
-                  child: Text('정기예약', style: TextStyle(fontSize: 15),),
-                  color: Colors.green,
-                  textColor: Colors.white,
-                  onPressed: () {},
+                  onPressed: _launchURL,
                 ),
               ),
             ),
@@ -102,3 +88,13 @@ class MainPage extends StatelessWidget {
   }
 
 }
+
+_launchURL() async {
+  const url = 'http://solviolin.com';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+

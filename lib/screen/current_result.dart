@@ -200,7 +200,7 @@ Future<String> extendRequest(BuildContext context ,String userID, String extendT
     }else {
       switch (res) {
         case 'timeout' :
-          message = '취소는 수업시작 4시간 전까지만 가능합니다!';
+          message = '연장은 수업시작 4시간 전까지만 가능합니다!';
           break;
         case 'unavailable' :
           message = '연장을 하려면 수업을 먼저 취소해주세요!';

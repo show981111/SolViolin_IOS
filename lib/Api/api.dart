@@ -6,4 +6,5 @@ class API {
   static const String POST_EXTENDCOURSE = BASE_URL + '/extendRequest.php';
   static const String GET_TERMLIST = BASE_URL + '/getTermList.php';
   static const String GET_TIMEFORDAY = BASE_URL + '/getTimeForDay.php';
+  static const String POST_PUTNEWLYDATE = BASE_URL + '/putNewlyDate.php';
 }
