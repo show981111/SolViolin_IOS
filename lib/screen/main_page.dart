@@ -29,7 +29,7 @@ class MainPage extends StatelessWidget {
                     borderRadius: new BorderRadius.circular(15.0),
                   ),
                   child: Text('예약 확인/취소', style: TextStyle(fontSize: 15),),
-                  color: Colors.green,
+                  color: Color.fromRGBO(96, 128, 104, 100),
                   textColor: Colors.white,
                   onPressed: () {
                     Navigator.push(
@@ -49,7 +49,7 @@ class MainPage extends StatelessWidget {
                     borderRadius: new BorderRadius.circular(15.0),
                   ),
                   child: Text('보강예약', style: TextStyle(fontSize: 15),),
-                  color: Colors.green,
+                  color: Color.fromRGBO(96, 128, 104, 100),
                   textColor: Colors.white,
                   onPressed: () {
                     Navigator.push(
@@ -69,16 +69,42 @@ class MainPage extends StatelessWidget {
                     borderRadius: new BorderRadius.circular(15.0),
                   ),
                   child: Text('홈페이지', style: TextStyle(fontSize: 15),),
-                  color: Colors.green,
+                  color: Color.fromRGBO(96, 128, 104, 100),
                   textColor: Colors.white,
                   onPressed: _launchURL,
                 ),
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(15),
+              padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
               child: Container(
-                child : Text('예약 방법 설명 적는 칸 블라브라블랍르'),
+                child : Text('레슨 취소',
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.w200),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
+              child: Container(
+                child : Text('예약내역/취소 버튼 -> 취소하고싶은 수업 swipe',
+                  style: TextStyle(fontSize: 17,fontWeight: FontWeight.w100),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+              child: Container(
+                child : Text('레슨 보강',
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.w200),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
+              child: Container(
+                child : Text('보강예약 버튼 -> 날짜 선택',
+                  style: TextStyle(fontSize: 17,fontWeight: FontWeight.w100),
+                ),
               ),
             ),
           ],

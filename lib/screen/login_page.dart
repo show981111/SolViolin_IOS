@@ -22,12 +22,24 @@ class _LoginScreenState extends State<LoginScreen>{
     return Scaffold (
       body: Container(
         child : Column(//_isLoading ? Center(child: CircularProgressIndicator()) :
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           //crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            Container(
+              height: 150.0,
+              width: 150.0,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(
+                      'images/solviolin_logo.png'),
+                  fit: BoxFit.fill,
+                ),
+                shape: BoxShape.circle,
+              ),
+            ),
             Padding(
-              padding: EdgeInsets.all(8),
+              padding: EdgeInsets.fromLTRB(8, 30, 8, 8),
               child: TextField(
                   controller: idController,
                   decoration: InputDecoration(
@@ -50,17 +62,19 @@ class _LoginScreenState extends State<LoginScreen>{
               padding: EdgeInsets.all(8),
               child: Container(
                 height: 45,
-                child: FlatButton(
-                  shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(30.0),
-                  ),
-                  child: Text('로그인', style: TextStyle(fontSize: 15),),
-                  color: Colors.green,
-                  textColor: Colors.white,
-                  onPressed: () {
-                    setState(() {
-                      _isLoading = true;
-                    });
+                child: Container(
+                  width: double.infinity,
+                  child: FlatButton(
+                    shape: new RoundedRectangleBorder(
+                      borderRadius: new BorderRadius.circular(30.0),
+                    ),
+                    child: Text('로그인', style: TextStyle(fontSize: 15),),
+                    color: Color.fromRGBO(96, 128, 104, 100),
+                    textColor: Colors.white,
+                    onPressed: () {
+                      setState(() {
+                        _isLoading = true;
+                      });
                       login(context, idController.text, passwordController.text)
                           .catchError((e) {
                         print("Got error: ${e}");     // Finally, callback fires.
@@ -71,8 +85,10 @@ class _LoginScreenState extends State<LoginScreen>{
                         }
                       });
                       //print(e);
-                  },
-                ),
+                    },
+                  ),
+                )
+
               ),
             ),
 

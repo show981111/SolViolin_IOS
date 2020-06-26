@@ -92,7 +92,7 @@ class _DayChangeState extends State<DayChange> {
                         borderRadius: new BorderRadius.circular(15.0),
                       ),
                       child: Text('날짜 선택', style: TextStyle(fontSize: 15),),
-                      color: Colors.green,
+                      color: Color.fromRGBO(96, 128, 104, 100),
                       textColor: Colors.white,
                       onPressed: () {
                         if(!_isButtonDisabled) {
@@ -185,7 +185,7 @@ Widget makeButtonGrid(BuildContext context, List<AvailableTime> timeList, String
           borderRadius: new BorderRadius.circular(15.0),
         ),
         child: Text(timeList[i].availableTime),
-        color: Colors.green,
+        color: Color.fromRGBO(96, 128, 104, 100),
         textColor: Colors.white,
         onPressed: () {
           //showTwoButtonDialog(context, teacher + ' 선생님으로 '+ date + ' ' +timeList[i].availableTime+ ' 에 예약하시겠습니까?');
