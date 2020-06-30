@@ -6,7 +6,11 @@ import 'dart:convert';
 import 'package:solviolin/model/user.dart';
 import 'package:solviolin/widget/showdialog.dart';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'main_page.dart';
+final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
+
 class LoginScreen extends StatefulWidget {
 
   _LoginScreenState createState() => _LoginScreenState();
@@ -16,7 +20,25 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>{
   TextEditingController idController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
+  String _token;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print("initState");
+    iOS_Permission();
+    _firebaseMessaging.getToken().then((String token) {
+      assert(token != null);
+      setState(() {
+        _token = token;
+        print(_token);
+
+      });
+
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold (
@@ -72,10 +94,13 @@ class _LoginScreenState extends State<LoginScreen>{
                     color: Color.fromRGBO(96, 128, 104, 100),
                     textColor: Colors.white,
                     onPressed: () {
+                      print('firebase');
+                      //firebaseCloudMessaging_Listeners();
+
                       setState(() {
                         _isLoading = true;
                       });
-                      login(context, idController.text, passwordController.text)
+                      login(context, idController.text, passwordController.text, _token)
                           .catchError((e) {
                         print("Got error: ${e}");     // Finally, callback fires.
                         if(e == 'loginFail'){
@@ -98,17 +123,29 @@ class _LoginScreenState extends State<LoginScreen>{
     );
   }
 
+  void iOS_Permission() {
+    _firebaseMessaging.requestNotificationPermissions(
+        IosNotificationSettings(sound: true, badge: true, alert: true)
+    );
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings)
+    {
+      print("Settings registered: $settings");
+    });
+  }
 
 }
 
-Future<User> login(BuildContext context ,String userID, String password) async{
+Future<User> login(BuildContext context ,String userID, String password, String token) async{
+
   Map data = {
     'userID' : userID,
-    'userPassword' : password
+    'userPassword' : password,
+    'token' : token
   };
   User userinfo;
   var response = await http.post(API.POST_LOGIN, body: data);
-  print(userID + password);
+  print(userID + password + token);
   if(response.statusCode == 200 && response.body.isNotEmpty){
     print(response.body);
 
@@ -117,7 +154,7 @@ Future<User> login(BuildContext context ,String userID, String password) async{
       userinfo = User.fromJson(result[0]);
       print(userinfo.userID);
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder:
-          (BuildContext context) => MainPage(user: userinfo)), (
+          (BuildContext context) => MainPage(user: userinfo, token: token,)), (
           Route<dynamic> route) => false);
       return userinfo;
     }else{
