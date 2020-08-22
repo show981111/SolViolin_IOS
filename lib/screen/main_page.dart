@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:solviolin/Api/api.dart';
+import 'package:solviolin/widget/check_fever.dart';
 import 'package:solviolin/widget/showdialog.dart';
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
@@ -91,7 +92,14 @@ class MainPage extends StatelessWidget {
                   color: Color.fromRGBO(96, 128, 104, 100),
                   textColor: Colors.white,
                   onPressed: () {
-                    _scan(context, user.userID, token);
+                    showFeverDialog(context).then((value){
+                      print(value);
+                      if(value == 0){
+                        _scan(context, user.userID, token);
+                      }else{
+                        showMyDialog(context, "발열 증상이 있을 경우 학원 입장이 불가능합니다.");
+                      }
+                    });
                   },
                 ),
               ),
@@ -139,7 +147,12 @@ class MainPage extends StatelessWidget {
     //스캔 시작 - 이때 스캔 될때까지 blocking
     var barcode = await BarcodeScanner.scan();
     print(barcode.rawContent);
-    qrCheckIn(context , userID,  barcode.rawContent,  token);
+    print(barcode.type);
+    if(barcode.type.toString() != 'Cancelled' && barcode.rawContent != null && barcode.rawContent.isNotEmpty &&barcode.rawContent.length > 0)
+    {
+      qrCheckIn(context , userID,  barcode.rawContent,  token);
+    }
+
     //String photoScanResult = await BarcodeScanner.scan();
     //String barcode = await scanner.scan();
     //스캔 완료하면 _output 에 문자열 저장하면서 상태 변경 요청.
@@ -154,7 +167,8 @@ Future<String> qrCheckIn(BuildContext context ,String userID, String userBranch,
   Map data = {
     'userID' : userID,
     'userBranch' : userBranch,
-    'token' : token
+    'token' : token,
+    'fever' : "none"
   };
   String res;
   var response = await http.post(API.POST_QR, body: data);
